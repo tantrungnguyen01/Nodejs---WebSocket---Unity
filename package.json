@@ -1,0 +1,24 @@
+{
+  "name": "middlewarenodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "middleware",
+    "nodejs"
+  ],
+  "author": "Trung",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "mongoose-sequence": "^5.3.1",
+    "slugify-mongoose": "^1.0.2",
+    "socket.io": "^4.7.2",
+    "ws": "^8.14.0"
+  }
+}
