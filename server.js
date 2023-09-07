@@ -21,23 +21,7 @@ const wss = new WebSocket.Server({ server });
 
 ketnoi();
 
-// Lắng nghe kết nối WebSocket
-wss.on('connection', (ws) => {
-    console.log('New WebSocket connection.');
-  
-    // Gửi dữ liệu tới máy khách khi kết nối thành công
-    ws.send('Welcome to the WebSocket server!');
-  
-    // Lắng nghe sự kiện khi máy khách gửi dữ liệu
-    ws.on('message', (message) => {
-      console.log(`Received message: ${message}`);
-    });
-  
-    // Lắng nghe sự kiện khi máy khách đóng kết nối
-    ws.on('close', () => {
-      console.log('WebSocket connection closed.');
-    });
-});
+
 
 
 
@@ -46,52 +30,72 @@ app.get('/',(req,res)=>{
 })
 
 
+wss.on('connection', (ws) => {
+    function Newround(){
+        const Round = new test({
+            small_money:1000,
+            small_player:0,
+            big_money:50000,
+            big_player:0,
+            counter:1,
+            result:-1,
+        })
+        Round.save().then(()=>{
+            console.log("New Round: " + Round._id);
+            CountRound(Round._id);
+        }).catch(err=>{
+            console.log("Không lưu vào được database",err);
+        })
+    
+    }
 
-function Newround(){
-    const Round = new test({
-        small_money:1000,
-        small_player:0,
-        big_money:50000,
-        big_player:0,
-        counter:1,
-        result:-1,
-    })
-    Round.save().then(()=>{
-        console.log("New Round: " + Round._id);
-        CountRound(Round._id);
-    }).catch(err=>{
-        console.log("Không lưu vào được database",err);
-    })
-   
-}
+    function CountRound(RoundNumber){
+        test.findOne({_id:RoundNumber}).then(round=>{
+            if(round.counter <= 10){
+                round.small_money += Math.floor(Math.random() * 1000000);
+                round.big_money += Math.floor(Math.random() * 1000000);
+                const currentCounter = round.counter++
+                console.log("ván thứ: " +RoundNumber +", thời gian:"+ currentCounter);
+                round.save().then(()=>{
+                
+                    ws.send(JSON.stringify(round))
 
-function CountRound(RoundNumber){
-    test.findOne({_id:RoundNumber}).then(round=>{
-        if(round.counter <= 10){
-            round.small_money += Math.floor(Math.random() * 1000000);
-            round.big_money += Math.floor(Math.random() * 1000000);
-            const currentCounter = round.counter++
-            console.log("ván thứ: " +RoundNumber +", thời gian:"+ currentCounter);
+                    setTimeout(()=>{CountRound(RoundNumber)},1000)
+                }).catch(()=>{})
+            }else{
+            round.result = Math.floor(Math.random() * 2);
+            if(round.result == 0){
+                round.dice = Math.floor(Math.random() * 3) + 1 ; // 1 -> 3
+            }else{
+                round.dice = Math.floor(Math.random() * 3) + 4 ; // 4 -> 6
+            }
             round.save().then(()=>{
-                setTimeout(()=>{CountRound(RoundNumber)},1000)
-            }).catch(()=>{})
-        }else{
-           round.result = Math.floor(Math.random() * 2);
-           if(round.result == 0){
-            round.dice = Math.floor(Math.random() * 3) + 1 ; // 1 -> 3
-           }else{
-            round.dice = Math.floor(Math.random() * 3) + 4 ; // 4 -> 6
-           }
-           round.save().then(()=>{
-                console.log("Winner of: " + round.result);
-                setTimeout(()=>{Newround(RoundNumber)},3000)
-           }).catch()
-        }
-    }).catch(()=>{})
-}
+                    console.log("Winner of: " + round.result);
+                    setTimeout(()=>{Newround(RoundNumber)},3000)
+            }).catch()
+            }
+        }).catch(()=>{})
+    }
 
-//Newround();
+    Newround();
 
+// Lắng nghe kết nối WebSocket
+console.log('New WebSocket connection. CLIENT');
+  
+// Gửi dữ liệu tới máy khách khi kết nối thành công
+//ws.send('Xin Chào Tôi Đến Từ SERVER Nodejs');
+  
+// Lắng nghe sự kiện khi máy khách gửi dữ liệu
+ws.on('message', (message) => {
+    console.log(`Received message-CLIENT: ${message}`);
+});
+  
+// Lắng nghe sự kiện khi máy khách đóng kết nối
+ws.on('close', () => {
+    console.log('WebSocket connection closed. CLIENT');
+});
+
+});
 
 
 
