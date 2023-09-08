@@ -70,8 +70,9 @@ wss.on('connection', (ws) => {
                 round.dice = Math.floor(Math.random() * 3) + 4 ; // 4 -> 6
             }
             round.save().then(()=>{
+                    ws.send(JSON.stringify(round))
                     console.log("Winner of: " + round.result);
-                    setTimeout(()=>{Newround(RoundNumber)},3000)
+                    setTimeout(()=>{Newround(RoundNumber)},9000)
             }).catch()
             }
         }).catch(()=>{})
