@@ -31,6 +31,9 @@ app.get('/',(req,res)=>{
 
 
 wss.on('connection', (ws) => {
+
+    const timeoutValue = 10000;
+
     function Newround(){
         const Round = new test({
             small_money:1000,
@@ -39,6 +42,9 @@ wss.on('connection', (ws) => {
             big_player:0,
             counter:1,
             result:-1,
+            
+            
+            
         })
         Round.save().then(()=>{
             console.log("New Round: " + Round._id);
@@ -55,6 +61,7 @@ wss.on('connection', (ws) => {
                 round.small_money += Math.floor(Math.random() * 1000000);
                 round.big_money += Math.floor(Math.random() * 1000000);
                 const currentCounter = round.counter++
+               
                 console.log("ván thứ: " +RoundNumber +", thời gian:"+ currentCounter);
                 round.save().then(()=>{
                 
@@ -69,10 +76,23 @@ wss.on('connection', (ws) => {
             }else{
                 round.dice = Math.floor(Math.random() * 3) + 4 ; // 4 -> 6
             }
+            
             round.save().then(()=>{
-                    ws.send(JSON.stringify(round))
+                    
+                
+                    for (let i = timeoutValue / 1000; i > 0; i--) {
+                        setTimeout(() => {
+                        console.log("Countdown: " + i);
+                        // Gửi thông điệp countdown đến client Unity
+                        ws.send(JSON.stringify({ countdown: i}));
+                        }, (timeoutValue - i * 1000));
+                    }
+                     
+                    
                     console.log("Winner of: " + round.result);
-                    setTimeout(()=>{Newround(RoundNumber)},9000)
+                    setTimeout(()=>{Newround(RoundNumber)},timeoutValue)
+                    ws.send(JSON.stringify(round));
+                  
             }).catch()
             }
         }).catch(()=>{})

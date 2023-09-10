@@ -14,6 +14,9 @@ const RoundSchema = new mongoose.Schema({
     result:Number,
     dice:Number,
     
+    
+    
+    
   
    
 },{_id:false,timestamps:true}) //trong này thì vô hiệu hóa nó trên mongodb _id
